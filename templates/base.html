@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Set tema sebelum render (hindari flash). Default: terang. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+  <title>{% block title %}Prediksi USD/IDR{% endblock %} · DASD × SIAB</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="{{ url_for('beranda') }}">
+        <span class="dot"></span> USD/IDR&nbsp;<span style="color:var(--muted);font-weight:500">Predictor</span>
+      </a>
+      <div class="nav-links">
+        <a href="{{ url_for('beranda') }}"  class="{{ 'active' if active=='beranda' }}">Beranda</a>
+        <a href="{{ url_for('dataset') }}"  class="{{ 'active' if active=='dataset' }}">Dataset & EDA</a>
+        <a href="{{ url_for('prediksi') }}" class="{{ 'active' if active=='prediksi' }}">Prediksi</a>
+        <a href="{{ url_for('forecast') }}" class="{{ 'active' if active=='forecast' }}">Forecast 30 Hari</a>
+        <a href="{{ url_for('evaluasi') }}" class="{{ 'active' if active=='evaluasi' }}">Evaluasi</a>
+        <a href="{{ url_for('insight') }}"  class="{{ 'active' if active=='insight' }}">Insight</a>
+        <a href="{{ url_for('panduan') }}"  class="{{ 'active' if active=='panduan' }}">Panduan</a>
+      </div>
+      <button id="themeToggle" class="theme-toggle" type="button"
+              aria-label="Ganti tema terang/gelap" title="Ganti tema terang/gelap">🌙</button>
+    </div>
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer>
+    <div class="container">
+      <strong style="font-family:'Space Grotesk'">Sistem Prediksi USD/IDR Berbasis Machine Learning</strong><br />
+      Tugas Besar — Desain Analisis Sains Data (DASD) × Sistem Informasi Analitik Bisnis (SIAB).
+      Model: <span class="mono">Random Forest</span> · Target: <span class="mono">log-return harian</span>.
+      <br />Disclaimer: alat bantu perencanaan, bukan saran finansial / kepastian.
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var btn = document.getElementById("themeToggle");
+      function setIcon(t) { btn.textContent = t === "dark" ? "☀️" : "🌙"; }
+      setIcon(document.documentElement.getAttribute("data-theme"));
+      btn.addEventListener("click", function () {
+        var cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+        var next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("theme", next); } catch (e) {}
+        setIcon(next);
+      });
+    })();
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

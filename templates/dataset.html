@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Dataset & EDA{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-title"><span class="num-tag">01</span><h1>Dataset & Eksplorasi Data</h1></div>
+  <p class="lead-muted">Multi-Asset Macroeconomic & Financial Time Series (Indonesia & Global Markets).</p>
+
+  <div class="grid grid-4" style="margin:22px 0">
+    <div class="card stat"><span class="label">Jumlah Baris</span><span class="value">{{ "{:,}".format(s.n_baris) }}</span><span class="hint">hari kerja</span></div>
+    <div class="card stat"><span class="label">Jumlah Fitur</span><span class="value">{{ s.n_fitur }}</span><span class="hint">+ kolom tanggal</span></div>
+    <div class="card stat"><span class="label">Rentang Waktu</span><span class="value" style="font-size:1.2rem">{{ s.tanggal_awal }}</span><span class="hint">s.d. {{ s.tanggal_akhir }}</span></div>
+    <div class="card stat"><span class="label">Target</span><span class="value" style="font-size:1.4rem">USDIDR</span><span class="hint">log-return harian</span></div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Deskripsi Dataset</h3>
+      <div class="kv"><span class="k">Domain</span><span class="v">Keuangan / Makroekonomi</span></div>
+      <div class="kv"><span class="k">Jenis data</span><span class="v">Numerik · Time series</span></div>
+      <div class="kv"><span class="k">Variabel target</span><span class="v">USDIDR</span></div>
+      <div class="kv"><span class="k">Missing value</span><span class="v">{{ s.missing }} sel</span></div>
+      <div class="kv"><span class="k">Sumber</span><span class="v">Dataset publik</span></div>
+    </div>
+    <div class="card">
+      <h3>Variabel & Perannya</h3>
+      <ul class="clean" style="font-size:.9rem">
+        <li><span class="mono">USDIDR</span> — nilai tukar (target)</li>
+        <li><span class="mono">OIL, GOLD</span> — komoditas global</li>
+        <li><span class="mono">SP500, IHSG</span> — indeks saham AS & Indonesia</li>
+        <li><span class="mono">VIX</span> — volatilitas / "ketakutan" pasar</li>
+        <li><span class="mono">CPI</span> — inflasi Indonesia</li>
+        <li><span class="mono">BI_rate, US_rate</span> — suku bunga acuan</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="margin:30px 0 12px">Cuplikan Data (8 baris awal)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr>{% for k in s.kolom %}<th>{{ k }}</th>{% endfor %}</tr></thead>
+      <tbody>
+        {% for row in s.head %}
+        <tr>{% for k in s.kolom %}<td class="{{ 'num' if k!='Date' }}">{{ row[k] }}</td>{% endfor %}</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:30px 0 12px">Statistik Deskriptif</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Variabel</th><th class="num">count</th><th class="num">mean</th><th class="num">std</th><th class="num">min</th><th class="num">25%</th><th class="num">50%</th><th class="num">75%</th><th class="num">max</th></tr></thead>
+      <tbody>
+        {% for r in s.describe %}
+        <tr><td>{{ r.Variabel }}</td><td class="num">{{ r['count'] }}</td><td class="num">{{ r['mean'] }}</td><td class="num">{{ r['std'] }}</td><td class="num">{{ r['min'] }}</td><td class="num">{{ r['25%'] }}</td><td class="num">{{ r['50%'] }}</td><td class="num">{{ r['75%'] }}</td><td class="num">{{ r['max'] }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin:34px 0 12px">Visualisasi EDA</h3>
+  <div class="grid grid-2">
+    <div class="figure"><img src="{{ url_for('static', filename='img/03_tren_usdidr.png') }}" alt="Tren USD/IDR"><div class="cap">Tren USD/IDR 2010–2026 — pelemahan jangka panjang Rupiah.</div></div>
+    <div class="figure"><img src="{{ url_for('static', filename='img/04_heatmap_korelasi.png') }}" alt="Korelasi"><div class="cap">Korelasi antar fitur (level) — tinggi karena banyak deret bertren.</div></div>
+    <div class="figure"><img src="{{ url_for('static', filename='img/02_boxplot_outlier.png') }}" alt="Boxplot"><div class="cap">Boxplot deteksi outlier — 2 typo USDIDR dikoreksi, OIL negatif (2020) dipertahankan.</div></div>
+    <div class="figure"><img src="{{ url_for('static', filename='img/11_periode_anomali.png') }}" alt="Anomali"><div class="cap">Periode anomali — COVID-19 (2020) & siklus kenaikan Fed (2022–2023).</div></div>
+  </div>
+
+  <div class="note" style="margin-top:20px"><strong>Temuan preprocessing penting:</strong> ditemukan & dikoreksi
+    2 kesalahan input pada USDIDR (nilai ~888 & ~892 yang seharusnya ~8.900). Koreksi ini menghilangkan
+    return palsu ekstrem dan membuat model akhirnya mengungguli baseline.</div>
+</div>
+{% endblock %}

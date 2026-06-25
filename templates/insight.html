@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Insight & Rekomendasi{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-title"><span class="num-tag">05</span><h1>Insight & Rekomendasi Bisnis</h1></div>
+  <p class="lead-muted">Menerjemahkan hasil analitik menjadi keputusan yang dapat ditindaklanjuti.</p>
+
+  <div class="grid grid-2" style="margin:20px 0">
+    <div class="card">
+      <h3>Temuan Utama</h3>
+      <ul class="clean">
+        <li><strong>Pasar mendekati efisien jangka pendek.</strong> Keunggulan tipis atas baseline pada RMSE menegaskan return harian USD/IDR ≈ random walk.</li>
+        <li><strong>Arah dapat diprediksi sebagian</strong> (~65% &gt; 50%) — nilai praktis utama untuk timing keputusan valas.</li>
+        <li><strong>Momentum & volatilitas jangka pendek</strong> (lag return, rolling std) jadi fitur paling informatif.</li>
+        <li><strong>Selisih suku bunga & perubahan komoditas</strong> berperan sebagai konteks makro saat rezim pasar berubah.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Periode Anomali</h3>
+      <ul class="clean">
+        <li><strong>COVID-19 (Mar–Apr 2020):</strong> lonjakan tajam akibat <em>flight to safety</em>.</li>
+        <li><strong>Siklus kenaikan Fed (2022–2023):</strong> penguatan Dolar global menekan Rupiah persisten.</li>
+      </ul>
+      <div class="note" style="margin-top:14px">Model berbasis pola historis akan kesulitan pada diskontinuitas/guncangan eksogen semacam ini.</div>
+    </div>
+  </div>
+
+  <h3 style="margin:24px 0 14px">Lima Rekomendasi Keputusan</h3>
+  <div class="grid grid-2">
+    <div class="card"><span class="rec-num">01</span><h3>Hedging berbasis risiko</h3><p class="sub">Gunakan lebar confidence band sebagai dasar ukuran lindung nilai — makin lebar band, makin besar porsi yang di-hedge. Bukan mengandalkan titik prediksi.</p></div>
+    <div class="card"><span class="rec-num">02</span><h3>Baseline sebagai acuan kas</h3><p class="sub">Untuk perencanaan kas sangat pendek, "asumsikan kurs besok = hari ini" sudah estimasi kuat & murah.</p></div>
+    <div class="card"><span class="rec-num">03</span><h3>Peringatan dini volatilitas</h3><p class="sub">Pantau lonjakan rolling std return & VIX sebagai pemicu peninjauan posisi valuta.</p></div>
+    <div class="card"><span class="rec-num">04</span><h3>Sinyal arah secara hati-hati</h3><p class="sub">Bila akurasi arah konsisten &gt;55% pada backtesting, jadikan input tambahan (bukan tunggal) untuk timing konversi.</p></div>
+    <div class="card"><span class="rec-num">05</span><h3>Retraining berkala</h3><p class="sub">Perbarui model rutin (mis. bulanan), selalu evaluasi relatif terhadap baseline naif — bukan hanya R².</p></div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(94,234,212,.10),rgba(124,156,255,.08))">
+      <span class="rec-num" style="color:var(--accent)">!</span><h3>Analisis Risiko Model</h3>
+      <p class="sub">Model keliru saat guncangan eksogen (pandemi, geopolitik, intervensi bank sentral) & horizon panjang. Mitigasi: jadikan pendukung keputusan, gunakan band ketidakpastian, kombinasikan analisis fundamental.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

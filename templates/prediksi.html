@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Prediksi{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-title"><span class="num-tag">02</span><h1>Prediksi & Simulasi Skenario</h1></div>
+  <p class="lead-muted">Prediksi otomatis dari data terbaru, plus simulasi "bagaimana jika" indikator makro berubah.</p>
+
+  <!-- Prediksi otomatis -->
+  <div class="card" style="margin:20px 0">
+    <div class="sub">A · Prediksi otomatis (data terbaru, {{ pred.tanggal_basis }})</div>
+    <div class="pred-box">
+      <div>
+        <div class="stat label" style="margin-bottom:8px">Prediksi besok</div>
+        <div class="big-num {{ 'up-text' if pred.arah=='NAIK' else 'down-text' }}">Rp {{ "{:,.0f}".format(pred.prediksi_level) }}</div>
+      </div>
+      <div class="pill {{ 'up' if pred.arah=='NAIK' else 'down' }}">{{ '▲' if pred.arah=='NAIK' else '▼' }} {{ pred.arah }} {{ "%.3f"|format(pred.return_persen) }}%</div>
+      <div style="color:var(--muted)">harga terakhir <span class="mono">Rp {{ "{:,.0f}".format(pred.harga_terakhir) }}</span></div>
+    </div>
+  </div>
+
+  <!-- Simulasi skenario -->
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="sub">B · Simulasi skenario — masukkan nilai indikator makro hari ini</div>
+      {% if error %}<div class="alert err">⚠ {{ error }}</div>{% endif %}
+      <form method="POST" action="{{ url_for('prediksi') }}">
+        <div class="grid grid-2">
+          {% for col, rng in batas.items() %}
+          <div class="field">
+            <label for="{{ col }}">{{ col }} <span style="opacity:.6">({{ satuan[col] }})</span></label>
+            <input type="number" step="any" min="{{ rng[0] }}" max="{{ rng[1] }}"
+                   name="{{ col }}" id="{{ col }}" value="{{ nilai[col] }}" required />
+            <span style="font-size:.72rem;opacity:.6">wajar {{ "%g"|format(rng[0]) }}–{{ "%g"|format(rng[1]) }} · terakhir {{ "%g"|format(last[col]) }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        <div style="display:flex;gap:10px;margin-top:6px">
+          <button class="btn" type="submit">Hitung prediksi skenario</button>
+          <a class="btn btn-ghost" href="{{ url_for('prediksi') }}">Reset</a>
+        </div>
+      </form>
+      <div class="note" style="margin-top:14px">Validasi input aktif: nilai <strong>negatif, nol, di luar rentang wajar,
+        atau bukan angka ditolak</strong>. Kotak terisi otomatis dengan nilai terakhir — ubah indikator yang ingin
+        Anda uji, sisanya biarkan (= dianggap tetap).</div>
+    </div>
+
+    <div class="card">
+      <div class="sub">Hasil simulasi</div>
+      {% if skenario %}
+        <div class="stat label" style="margin-bottom:8px">Prediksi USD/IDR (skenario)</div>
+        <div class="big-num {{ 'up-text' if skenario.arah=='NAIK' else 'down-text' }}">Rp {{ "{:,.0f}".format(skenario.prediksi_level) }}</div>
+        <div style="margin-top:14px" class="pill {{ 'up' if skenario.arah=='NAIK' else 'down' }}">
+          {{ '▲' if skenario.arah=='NAIK' else '▼' }} {{ skenario.arah }} {{ "%.3f"|format(skenario.return_persen) }}%
+        </div>
+        <div class="kv" style="margin-top:18px"><span class="k">Harga terakhir</span><span class="v">Rp {{ "{:,.0f}".format(skenario.harga_terakhir) }}</span></div>
+        <div class="kv"><span class="k">Prediksi level</span><span class="v">Rp {{ "{:,.0f}".format(skenario.prediksi_level) }}</span></div>
+        <div class="kv"><span class="k">Selisih</span><span class="v">{{ '+' if skenario.selisih>=0 else '' }}{{ "%.2f"|format(skenario.selisih) }}</span></div>
+      {% else %}
+        <div style="color:var(--muted);padding:30px 0;text-align:center">
+          Isi nilai indikator makro di sebelah kiri, lalu klik <strong>Hitung</strong>.<br />
+          Biarkan semua = nilai terakhir berarti makro stabil (= prediksi otomatis).
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="note" style="margin-top:20px"><strong>Cara membaca:</strong> model memprediksi <em>return</em> (perubahan),
+    lalu level direkonstruksi dengan <span class="mono">USDIDR_besok = USDIDR_terakhir × exp(return)</span>.
+    Fokus pada <strong>arah</strong> (naik/turun) — itu sinyal paling andal.</div>
+</div>
+{% endblock %}
