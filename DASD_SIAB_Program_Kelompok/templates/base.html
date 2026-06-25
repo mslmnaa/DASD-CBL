@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Set tema sebelum render (hindari flash). Default: terang. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    })();
+  </script>
+  <title>{% block title %}Prediksi USD/IDR{% endblock %} · DASD × SIAB</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+
+  <!-- ─── Responsive overrides ─────────────────────────────────────────── -->
+  <style>
+    /* ── Hamburger button (hidden on desktop) ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      margin-left: auto;        /* push to right when theme toggle wraps */
+      flex-shrink: 0;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--fg, currentColor);
+      border-radius: 2px;
+      transition: transform 0.25s, opacity 0.25s;
+    }
+    /* Animated X when open */
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* ── Tablet / small desktop (≤ 900px) ── */
+    @media (max-width: 900px) {
+      .nav-inner {
+        flex-wrap: wrap;
+        gap: 0;
+      }
+      .nav-links {
+        /* become a stacked drawer under the bar */
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        order: 3;              /* brand → toggles → drawer */
+        padding: 0.5rem 0 0.75rem;
+        gap: 0;
+      }
+      .nav-links.open {
+        display: flex;
+      }
+      .nav-links a {
+        padding: 0.55rem 0.25rem;
+        border-bottom: 1px solid var(--border, rgba(0,0,0,.08));
+        font-size: 0.95rem;
+      }
+      .nav-links a:last-child {
+        border-bottom: none;
+      }
+      .nav-hamburger {
+        display: flex;
+        order: 2;
+      }
+      /* theme toggle stays right of hamburger */
+      .theme-toggle {
+        order: 2;
+        margin-left: 0.5rem;
+      }
+    }
+
+    /* ── Mobile (≤ 600px) ── */
+    @media (max-width: 600px) {
+      /* Give the container breathing room */
+      .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      /* Brand label: slightly smaller */
+      .brand {
+        font-size: 0.9rem;
+      }
+      /* Main content */
+      main {
+        padding: 0;          /* let inner pages control their own padding */
+      }
+      /* Footer text wraps cleanly */
+      footer .container {
+        font-size: 0.8rem;
+        line-height: 1.6;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="{{ url_for('beranda') }}">
+        <span class="dot"></span> USD/IDR&nbsp;<span style="color:var(--muted);font-weight:500">Predictor</span>
+      </a>
+
+      <!-- Hamburger (visible on mobile only, toggled via JS below) -->
+      <button class="nav-hamburger" id="navHamburger" type="button"
+              aria-label="Buka/tutup menu navigasi" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+
+      <button id="themeToggle" class="theme-toggle" type="button"
+              aria-label="Ganti tema terang/gelap" title="Ganti tema terang/gelap">🌙</button>
+
+      <div class="nav-links" id="navLinks">
+        <a href="{{ url_for('beranda') }}"  class="{{ 'active' if active=='beranda' }}">Beranda</a>
+        <a href="{{ url_for('dataset') }}"  class="{{ 'active' if active=='dataset' }}">Dataset & EDA</a>
+        <a href="{{ url_for('prediksi') }}" class="{{ 'active' if active=='prediksi' }}">Prediksi</a>
+        <a href="{{ url_for('forecast') }}" class="{{ 'active' if active=='forecast' }}">Forecast 30 Hari</a>
+        <a href="{{ url_for('evaluasi') }}" class="{{ 'active' if active=='evaluasi' }}">Evaluasi</a>
+        <a href="{{ url_for('insight') }}"  class="{{ 'active' if active=='insight' }}">Insight</a>
+        <a href="{{ url_for('panduan') }}"  class="{{ 'active' if active=='panduan' }}">Panduan</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>{% block content %}{% endblock %}</main>
+
+  <footer>
+    <div class="container">
+      <strong style="font-family:'Space Grotesk'">Sistem Prediksi USD/IDR Berbasis Machine Learning</strong><br />
+      Tugas Besar — Desain Analisis Sains Data (DASD) × Sistem Informasi Analitik Bisnis (SIAB).
+      Model: <span class="mono">Random Forest</span> · Target: <span class="mono">log-return harian</span>.
+      <br />Disclaimer: alat bantu perencanaan, bukan saran finansial / kepastian.
+    </div>
+  </footer>
+
+  <script>
+    /* ── Theme toggle ── */
+    (function () {
+      var btn = document.getElementById("themeToggle");
+      function setIcon(t) { btn.textContent = t === "dark" ? "☀️" : "🌙"; }
+      setIcon(document.documentElement.getAttribute("data-theme"));
+      btn.addEventListener("click", function () {
+        var cur = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+        var next = cur === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("theme", next); } catch (e) {}
+        setIcon(next);
+      });
+    })();
+
+    /* ── Hamburger / mobile menu ── */
+    (function () {
+      var hamburger = document.getElementById("navHamburger");
+      var navLinks  = document.getElementById("navLinks");
+      if (!hamburger || !navLinks) return;
+
+      hamburger.addEventListener("click", function () {
+        var isOpen = navLinks.classList.toggle("open");
+        hamburger.classList.toggle("open", isOpen);
+        hamburger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+
+      /* Close drawer when a nav link is tapped (SPA-friendly) */
+      navLinks.querySelectorAll("a").forEach(function (link) {
+        link.addEventListener("click", function () {
+          navLinks.classList.remove("open");
+          hamburger.classList.remove("open");
+          hamburger.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      /* Close drawer on outside click */
+      document.addEventListener("click", function (e) {
+        if (!hamburger.contains(e.target) && !navLinks.contains(e.target)) {
+          navLinks.classList.remove("open");
+          hamburger.classList.remove("open");
+          hamburger.setAttribute("aria-expanded", "false");
+        }
+      });
+    })();
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

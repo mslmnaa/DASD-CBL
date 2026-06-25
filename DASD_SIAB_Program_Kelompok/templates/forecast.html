@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Forecast 30 Hari{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-title"><span class="num-tag">03</span><h1>Forecast 30 Hari ke Depan</h1></div>
+  <p class="lead-muted">Proyeksi iteratif dengan model {{ model }} · confidence band melebar mengikuti horizon (σ·√h).</p>
+
+  <div class="card" style="margin:20px 0">
+    <canvas id="chartForecast" height="110"></canvas>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tanggal</th><th class="num">Prediksi (Rp)</th><th class="num">Batas Bawah</th><th class="num">Batas Atas</th></tr></thead>
+      <tbody>
+        {% for r in forecast %}
+        <tr><td>{{ r.tanggal }}</td><td class="num">{{ "{:,.0f}".format(r.prediksi) }}</td><td class="num">{{ "{:,.0f}".format(r.bawah) }}</td><td class="num">{{ "{:,.0f}".format(r.atas) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note" style="margin-top:20px"><strong>Asumsi:</strong> perubahan indikator makro ke depan dianggap nol
+    (makro relatif stabil). Band yang melebar mencerminkan ketidakpastian yang bertambah seiring horizon —
+    representasi risiko yang jujur. Forecast = alat bantu perencanaan, bukan kepastian.</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const hist = {{ histori|tojson }};
+  const fc   = {{ forecast|tojson }};
+  const labels = hist.map(d => d.tanggal).concat(fc.map(d => d.tanggal));
+  const nH = hist.length;
+  const pad = new Array(nH).fill(null);
+
+  const histLine = hist.map(d => d.nilai).concat(new Array(fc.length).fill(null));
+  const fcLine   = pad.concat(fc.map(d => d.prediksi));
+  const bawah    = pad.concat(fc.map(d => d.bawah));
+  const atas     = pad.concat(fc.map(d => d.atas));
+  // sambungkan garis historis ke forecast
+  fcLine[nH-1] = hist[nH-1].nilai; bawah[nH-1] = hist[nH-1].nilai; atas[nH-1] = hist[nH-1].nilai;
+
+  const css = getComputedStyle(document.documentElement);
+  const muted = css.getPropertyValue('--muted'); const line = css.getPropertyValue('--line');
+
+  new Chart(document.getElementById('chartForecast'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Batas Atas', data: atas, borderColor: 'rgba(94,234,212,.25)', backgroundColor: 'rgba(94,234,212,.12)', fill: '+1', pointRadius: 0, borderWidth: 1 },
+      { label: 'Batas Bawah', data: bawah, borderColor: 'rgba(94,234,212,.25)', fill: false, pointRadius: 0, borderWidth: 1 },
+      { label: 'Historis', data: histLine, borderColor: '#e8edf7', backgroundColor: '#e8edf7', pointRadius: 0, borderWidth: 2, tension: .15 },
+      { label: 'Forecast', data: fcLine, borderColor: '#fbbf24', backgroundColor: '#fbbf24', pointRadius: 2, borderWidth: 2, tension: .15 },
+    ]},
+    options: {
+      responsive: true, interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { labels: { color: muted, font: { family: 'Inter' } } } },
+      scales: {
+        x: { ticks: { color: muted, maxTicksLimit: 12, font: { family: 'Space Mono', size: 9 } }, grid: { color: line } },
+        y: { ticks: { color: muted, font: { family: 'Space Mono' } }, grid: { color: line } }
+      }
+    }
+  });
+</script>
+{% endblock %}

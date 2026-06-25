@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Beranda{% endblock %}
+{% block content %}
+<div class="container">
+  <section class="hero">
+    <span class="eyebrow">Machine Learning · Forecasting Nilai Tukar</span>
+    <h1>Prediksi Nilai Tukar <span class="grad">USD/IDR</span><br />untuk Pengambilan Keputusan Bisnis</h1>
+    <p class="lead">Sistem analitik berbasis <em>machine learning</em> yang memodelkan <strong>return harian</strong>
+       USD/IDR menggunakan indikator makroekonomi & pasar finansial. Dirancang untuk mendukung keputusan
+       <em>treasury</em>: kapan melakukan lindung nilai (hedging) dan konversi valuta.</p>
+  </section>
+
+  <!-- prediksi besok -->
+  <section class="section">
+    <div class="card">
+      <div class="sub">Prediksi hari kerja berikutnya · basis data {{ info.tanggal }}</div>
+      <div class="pred-box">
+        <div>
+          <div class="stat label" style="margin-bottom:8px">Prediksi USD/IDR</div>
+          <div class="big-num {{ 'up-text' if pred.arah=='NAIK' else 'down-text' }}">Rp {{ "{:,.0f}".format(pred.prediksi_level) }}</div>
+        </div>
+        <div class="pill {{ 'up' if pred.arah=='NAIK' else 'down' }}">
+          {{ '▲' if pred.arah=='NAIK' else '▼' }} {{ pred.arah }} {{ "%.3f"|format(pred.return_persen) }}%
+        </div>
+        <div style="color:var(--muted)">
+          dari harga terakhir <span class="mono">Rp {{ "{:,.0f}".format(pred.harga_terakhir) }}</span>
+          ({{ '+' if pred.selisih>=0 else '' }}<span class="mono">{{ "%.2f"|format(pred.selisih) }}</span>)
+        </div>
+      </div>
+      <div style="margin-top:18px"><a class="btn" href="{{ url_for('prediksi') }}">Coba simulasi skenario →</a></div>
+    </div>
+  </section>
+
+  <!-- KPI -->
+  <section class="section">
+    <div class="grid grid-4">
+      <div class="card stat">
+        <span class="label">Model Juara</span>
+        <span class="value" style="font-size:1.4rem">{{ info.model }}</span>
+        <span class="hint">dipilih dari akurasi arah</span>
+      </div>
+      <div class="card stat">
+        <span class="label">Akurasi Arah</span>
+        <span class="value up-text">{{ info.akurasi_arah }}%</span>
+        <span class="hint">vs 50% tebakan acak</span>
+      </div>
+      <div class="card stat">
+        <span class="label">RMSE (Level)</span>
+        <span class="value">{{ info.rmse }}</span>
+        <span class="hint">rupiah · &lt; baseline naif</span>
+      </div>
+      <div class="card stat">
+        <span class="label">MAPE</span>
+        <span class="value">{{ info.mape }}%</span>
+        <span class="hint">error persentase rata-rata</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- penjelasan -->
+  <section class="section">
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Dua pertanyaan, dua tingkat kesulitan</h3>
+        <p class="sub">Nilai tukar harian mendekati <em>random walk</em>. Karena itu sistem ini jujur membedakan:</p>
+        <ul class="clean">
+          <li><strong>Angka persis besok?</strong> Sulit — model hanya unggul tipis atas baseline "besok = hari ini".</li>
+          <li><strong>Naik atau turun?</strong> Bisa — model benar ~{{ info.akurasi_arah }}% (jauh di atas 50%).</li>
+        </ul>
+        <div class="note" style="margin-top:14px">Maka model <strong>juara dipilih berdasarkan akurasi arah</strong>,
+          metrik yang paling bermakna untuk keputusan valas.</div>
+      </div>
+      <div class="card">
+        <h3>Alur sistem (MLOps sederhana)</h3>
+        <ul class="clean">
+          <li>Data Collection → Preprocessing (koreksi outlier, fitur return)</li>
+          <li>Model Training (RF, XGBoost, Linear) → Evaluasi vs baseline</li>
+          <li>Pemilihan model otomatis → simpan <span class="mono">.pkl</span></li>
+          <li>Deployment (Flask di cPanel) → inferensi tanpa training ulang</li>
+          <li>Monitoring & retraining berkala</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

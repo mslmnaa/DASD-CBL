@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Panduan Penggunaan{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-title"><span class="num-tag">06</span><h1>Panduan Penggunaan Aplikasi</h1></div>
+  <p class="lead-muted">Dokumentasi singkat cara menggunakan tiap halaman dan membaca hasilnya.</p>
+
+  <!-- Tujuan -->
+  <div class="card" style="margin:20px 0">
+    <h3>Apa fungsi aplikasi ini?</h3>
+    <p class="sub">Sistem analitik berbasis <em>machine learning</em> untuk memperkirakan arah & level nilai
+      tukar <strong>USD/IDR</strong> hari kerja berikutnya, sebagai pendukung keputusan <em>treasury</em>
+      (kapan melakukan lindung nilai/konversi valuta). Model memprediksi <strong>return harian</strong>,
+      lalu level direkonstruksi dengan <span class="mono">USDIDR_besok = USDIDR_terakhir × exp(return)</span>.</p>
+    <div class="note" style="margin-top:14px">Fokus pada <strong>arah (naik/turun)</strong> — itu sinyal paling
+      andal (~65% benar). Angka level adalah estimasi, bukan kepastian.</div>
+  </div>
+
+  <!-- Peta halaman -->
+  <h3 style="margin:24px 0 12px">Peta halaman</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="kv"><span class="k">Beranda</span><span class="v">Ringkasan KPI model + prediksi besok</span></div>
+      <div class="kv"><span class="k">Dataset &amp; EDA</span><span class="v">Deskripsi data, statistik, visualisasi</span></div>
+      <div class="kv"><span class="k">Prediksi</span><span class="v">Prediksi otomatis + simulasi skenario</span></div>
+    </div>
+    <div class="card">
+      <div class="kv"><span class="k">Forecast 30 Hari</span><span class="v">Proyeksi + confidence band (Chart.js)</span></div>
+      <div class="kv"><span class="k">Evaluasi</span><span class="v">Perbandingan 3 model vs baseline</span></div>
+      <div class="kv"><span class="k">Insight</span><span class="v">Temuan utama &amp; rekomendasi keputusan</span></div>
+    </div>
+  </div>
+
+  <!-- Cara pakai prediksi -->
+  <h3 style="margin:28px 0 12px">Cara memakai fitur Prediksi &amp; Simulasi</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3>Langkah</h3>
+      <ul class="clean">
+        <li><strong>1.</strong> Buka halaman <span class="mono">Prediksi</span>. Bagian A menampilkan prediksi
+          otomatis dari data terbaru — tanpa input apa pun.</li>
+        <li><strong>2.</strong> Untuk simulasi "bagaimana jika", isi nilai indikator makro di bagian B.
+          Kotak sudah terisi otomatis dengan <strong>nilai terakhir</strong>.</li>
+        <li><strong>3.</strong> Ubah hanya indikator yang ingin Anda uji, biarkan sisanya (= dianggap tetap).</li>
+        <li><strong>4.</strong> Klik <span class="mono">Hitung prediksi skenario</span> → hasil muncul di kanan.</li>
+        <li><strong>5.</strong> Klik <span class="mono">Reset</span> untuk kembali ke nilai terakhir.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Rentang input yang wajar</h3>
+      <ul class="clean" style="font-size:.9rem">
+        {% for col, rng in batas.items() %}
+        <li><span class="mono">{{ col }}</span> ({{ satuan[col] }}) —
+          {{ "%g"|format(rng[0]) }}…{{ "%g"|format(rng[1]) }}
+          <span style="opacity:.6">· terakhir {{ "%g"|format(last[col]) }}</span></li>
+        {% endfor %}
+      </ul>
+      <div class="note" style="margin-top:12px">Input <strong>negatif, nol, di luar rentang, bukan angka, atau
+        lompatan &gt;25% dalam sehari</strong> akan ditolak demi keamanan &amp; stabilitas aplikasi.</div>
+    </div>
+  </div>
+
+  <!-- Cara baca hasil -->
+  <h3 style="margin:28px 0 12px">Cara membaca hasil</h3>
+  <div class="grid grid-2">
+    <div class="card">
+      <ul class="clean">
+        <li><span class="pill up" style="display:inline-block">▲ NAIK</span> — Rupiah diprediksi <strong>melemah</strong>
+          (butuh lebih banyak Rupiah per 1 USD).</li>
+        <li><span class="pill down" style="display:inline-block">▼ TURUN</span> — Rupiah diprediksi <strong>menguat</strong>.</li>
+        <li><strong>Selisih</strong> = perkiraan perubahan nominal vs harga terakhir.</li>
+        <li><strong>Confidence band</strong> (di Forecast) melebar mengikuti horizon — makin jauh, makin tidak pasti.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Catatan keamanan &amp; etika</h3>
+      <ul class="clean">
+        <li>Tidak ada kredensial di kode (<span class="mono">SECRET_KEY</span> via environment variable).</li>
+        <li>Validasi input mencegah error &amp; manipulasi data.</li>
+        <li><strong>Disclaimer:</strong> alat bantu perencanaan, <em>bukan</em> saran finansial / kepastian.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:24px"><a class="btn" href="{{ url_for('prediksi') }}">Mulai dari halaman Prediksi →</a></div>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Evaluasi Model{% endblock %}
+{% block content %}
+<div class="container section">
+  <div class="section-title"><span class="num-tag">04</span><h1>Evaluasi Model</h1></div>
+  <p class="lead-muted">Perbandingan jujur 3 model vs baseline naif. Metrik level (hasil rekonstruksi) + akurasi arah.</p>
+
+  <div class="table-wrap" style="margin:20px 0">
+    <table>
+      <thead><tr><th>Model</th><th class="num">MAE</th><th class="num">RMSE</th><th class="num">MAPE(%)</th><th class="num">R²</th><th class="num">Akurasi Arah(%)</th></tr></thead>
+      <tbody>
+        {% for r in tabel %}
+        <tr class="{{ 'highlight' if r.Model==juara }}">
+          <td>{{ r.Model }}{% if r.Model==juara %}<span class="badge-juara">JUARA</span>{% endif %}</td>
+          <td class="num">{{ "%.2f"|format(r['MAE']) }}</td>
+          <td class="num">{{ "%.2f"|format(r['RMSE']) }}</td>
+          <td class="num">{{ "%.3f"|format(r['MAPE(%)']) }}</td>
+          <td class="num">{{ "%.4f"|format(r['R2']) }}</td>
+          <td class="num">{{ "%.2f"|format(r['Dir.Acc(%)']) if r['Dir.Acc(%)'] == r['Dir.Acc(%)'] else '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card"><canvas id="chartRmse" height="220"></canvas></div>
+    <div class="card"><canvas id="chartDir" height="220"></canvas></div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:18px">
+    <div class="figure"><img src="{{ url_for('static', filename='img/07_prediksi_vs_aktual.png') }}" alt="Prediksi vs Aktual"><div class="cap">Prediksi vs aktual (level) — model juara mengikuti pergerakan dengan baik.</div></div>
+    <div class="figure"><img src="{{ url_for('static', filename='img/09_feature_importance.png') }}" alt="Feature Importance"><div class="cap">Feature importance — momentum & volatilitas jangka pendek paling informatif.</div></div>
+  </div>
+
+  <div class="note" style="margin-top:20px"><strong>Cara membaca:</strong> R² tinggi untuk semua model bukan pembeda
+    (level direkonstruksi dari harga kemarin). Yang penting: model juara <strong>mengungguli baseline naif</strong>
+    pada RMSE/MAE (meski tipis) dan menebak <strong>arah ~65%</strong> — jauh di atas tebakan koin 50%.</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+  const tabel = {{ tabel|tojson }};
+  const juara = {{ juara|tojson }};
+  const css = getComputedStyle(document.documentElement);
+  const muted = css.getPropertyValue('--muted'); const line = css.getPropertyValue('--line');
+
+  const names = tabel.map(r => r.Model);
+  const rmse  = tabel.map(r => r['RMSE']);
+  const colorsR = names.map(n => n==='Baseline Naif (Persistence)' ? '#93a0bd' : (n===juara ? '#5eead4' : '#7c9cff'));
+
+  new Chart(document.getElementById('chartRmse'), {
+    type: 'bar',
+    data: { labels: names, datasets: [{ label: 'RMSE (Rupiah)', data: rmse, backgroundColor: colorsR }] },
+    options: { plugins: { legend: { display:false }, title: { display:true, text:'RMSE — termasuk Baseline (makin kecil makin baik)', color: muted, font:{family:'Space Grotesk'} } },
+      scales: { x: { ticks:{ color:muted, font:{size:9} }, grid:{display:false} }, y: { ticks:{ color:muted, font:{family:'Space Mono'} }, grid:{color:line} } } }
+  });
+
+  const ml = tabel.filter(r => r['Dir.Acc(%)'] === r['Dir.Acc(%)']); // buang NaN baseline
+  new Chart(document.getElementById('chartDir'), {
+    type: 'bar',
+    data: { labels: ml.map(r=>r.Model), datasets: [{ label:'Akurasi Arah (%)', data: ml.map(r=>r['Dir.Acc(%)']),
+      backgroundColor: ml.map(r=> r.Model===juara ? '#34d399' : '#7c9cff') }] },
+    options: { plugins: { legend:{display:false}, title:{display:true, text:'Akurasi Arah (%) — garis 50% = acak', color:muted, font:{family:'Space Grotesk'} } },
+      scales: { x: { ticks:{ color:muted, font:{size:9} }, grid:{display:false} },
+        y: { min:45, ticks:{ color:muted, font:{family:'Space Mono'} }, grid:{color:line} } } }
+  });
+</script>
+{% endblock %}
