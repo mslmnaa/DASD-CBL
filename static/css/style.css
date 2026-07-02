@@ -86,6 +86,19 @@ a:hover { text-decoration: underline; }
 .nav-links a:hover { color: var(--text); background: var(--card); text-decoration: none; }
 .nav-links a.active { color: var(--on-accent); background: var(--accent); font-weight: 600; }
 
+/* tombol hamburger (hanya tampil di layar kecil) */
+.nav-toggle {
+  display: none; margin-left: auto; width: 40px; height: 40px; border-radius: 10px;
+  background: var(--card); border: 1px solid var(--line); cursor: pointer;
+  flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  transition: .15s;
+}
+.nav-toggle:hover { border-color: var(--accent); }
+.nav-toggle-bar { width: 18px; height: 2px; background: var(--text); border-radius: 2px; transition: transform .2s ease, opacity .2s ease; }
+.nav-toggle.open .nav-toggle-bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-toggle.open .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.nav-toggle.open .nav-toggle-bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
 /* tombol ganti tema */
 .theme-toggle {
   background: var(--card); border: 1px solid var(--line); color: var(--text);
@@ -110,7 +123,22 @@ a:hover { text-decoration: underline; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 .grid-4 { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 880px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+/* tablet besar: rapatkan 3/4 kolom jadi 2 */
+@media (max-width: 980px) {
+  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+/* tablet / ponsel besar: dua kolom mulai sempit → satu kolom */
+@media (max-width: 760px) {
+  .grid-2 { grid-template-columns: 1fr; }
+}
+/* ponsel: semua satu kolom penuh */
+@media (max-width: 560px) {
+  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+/* grid bersarang (mis. input skenario) ikut menyempit lebih awal */
+@media (max-width: 900px) {
+  .grid .grid-2 { grid-template-columns: 1fr; }
+}
 
 .card {
   background: linear-gradient(180deg, var(--card), var(--bg-soft));
@@ -189,3 +217,55 @@ ul.clean li::before { content: "▸"; color: var(--accent); }
 footer { border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; padding: 26px 0; margin-top: 30px; }
 .rec-num { font-family: "Space Grotesk"; font-weight: 700; color: var(--accent-2); font-size: 1.3rem; }
 canvas { max-width: 100%; }
+img { max-width: 100%; height: auto; }
+
+/* ============================================================
+   RESPONSIVE — navbar collapsible & penyesuaian layar kecil
+   ============================================================ */
+@media (max-width: 860px) {
+  /* tampilkan hamburger, sembunyikan menu (buka via toggle) */
+  .nav-toggle { display: inline-flex; }
+  .nav-inner { flex-wrap: wrap; gap: 10px; }
+  .nav-links {
+    order: 3; margin-left: 0; flex-basis: 100%;
+    flex-direction: column; gap: 4px;
+    max-height: 0; overflow: hidden;
+    opacity: 0; transition: max-height .28s ease, opacity .2s ease, padding .28s ease;
+    padding: 0;
+  }
+  .nav-links.open {
+    max-height: 70vh; overflow-y: auto; opacity: 1;
+    padding: 10px; margin: 4px -6px 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line); border-radius: 12px;
+    box-shadow: var(--shadow);
+  }
+  .nav-links a { padding: 11px 14px; border-radius: 10px; font-size: .95rem; }
+  .theme-toggle { margin-left: 0; }
+}
+
+@media (max-width: 640px) {
+  .container { padding: 0 16px; }
+  .section { padding: 26px 0; }
+  .hero { padding: 34px 0 20px; }
+  .hero p.lead { font-size: 1rem; }
+  .card { padding: 18px; }
+  .big-num { font-size: 2.1rem; }
+  .stat .value { font-size: 1.6rem; }
+  .pred-box { gap: 14px; }
+  .btn { width: 100%; justify-content: center; }
+  .section-title { flex-wrap: wrap; gap: 6px; }
+  table { font-size: .84rem; }
+  thead th, tbody td { padding: 9px 10px; }
+  /* daftar "term | deskripsi" mengalir normal, tidak jadi 2 kolom sempit */
+  ul.clean li { display: block; }
+  ul.clean li::before { margin-right: 8px; }
+  ul.clean li strong { margin-right: 4px; }
+  /* baris angka besar + pill tidak berdempetan */
+  .pred-box { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 400px) {
+  .brand { font-size: .95rem; }
+  .big-num { font-size: 1.8rem; }
+}

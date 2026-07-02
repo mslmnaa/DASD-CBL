@@ -24,3 +24,10 @@ Thumbs.db
 
 # ===== Log =====
 *.log
+
+# ===== Salinan duplikat proyek (redundan dengan app di root) =====
+DASD_SIAB_Program_Kelompok/
+
+# ===== Dataset mentah & berkas non-kode (tidak diperlukan untuk deploy) =====
+Daily Multi-Asset Macroeconomic and Financial Time Series Dataset (IndonesiaGlobal Markets).csv
+Rancangan_Tugas_CBL_DASD_SIAB.pdf
