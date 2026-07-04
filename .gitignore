@@ -31,3 +31,10 @@ DASD_SIAB_Program_Kelompok/
 # ===== Dataset mentah & berkas non-kode (tidak diperlukan untuk deploy) =====
 Daily Multi-Asset Macroeconomic and Financial Time Series Dataset (IndonesiaGlobal Markets).csv
 Rancangan_Tugas_CBL_DASD_SIAB.pdf
+
+# ===== Panduan deploy VPS/Apache (catatan internal, jangan diunggah ke repo) =====
+DEPLOY_VPS_APACHE.md
+
+# ===== Dokumen laporan & bahan internal (jangan diunggah ke repo) =====
+*.docx
+Bahan_Laporan_Keamanan_Etika.md
