@@ -38,3 +38,6 @@ DEPLOY_VPS_APACHE.md
 # ===== Dokumen laporan & bahan internal (jangan diunggah ke repo) =====
 *.docx
 Bahan_Laporan_Keamanan_Etika.md
+
+deploy_key
+deploy_key.pub
