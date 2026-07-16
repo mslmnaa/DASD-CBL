@@ -7,7 +7,7 @@
 
   <div class="table-wrap" style="margin:20px 0">
     <table>
-      <thead><tr><th>Model</th><th class="num">MAE</th><th class="num">RMSE</th><th class="num">MAPE(%)</th><th class="num">RÂ²</th><th class="num">Akurasi Arah(%)</th></tr></thead>
+      <thead><tr><th>Model</th><th class="num">MAE</th><th class="num">RMSE</th><th class="num">MAPE(%)</th><th class="num">R²</th><th class="num">Akurasi Arah(%)</th></tr></thead>
       <tbody>
         {% for r in tabel %}
         <tr class="{{ 'highlight' if r.Model==juara }}">
@@ -16,7 +16,7 @@
           <td class="num">{{ "%.2f"|format(r['RMSE']) }}</td>
           <td class="num">{{ "%.3f"|format(r['MAPE(%)']) }}</td>
           <td class="num">{{ "%.4f"|format(r['R2']) }}</td>
-          <td class="num">{{ "%.2f"|format(r['Dir.Acc(%)']) if r['Dir.Acc(%)'] == r['Dir.Acc(%)'] else 'â€”' }}</td>
+          <td class="num">{{ "%.2f"|format(r['Dir.Acc(%)']) if r['Dir.Acc(%)'] == r['Dir.Acc(%)'] else '—' }}</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -29,13 +29,13 @@
   </div>
 
   <div class="grid grid-2" style="margin-top:18px">
-    <div class="figure"><img src="{{ url_for('static', filename='img/07_prediksi_vs_aktual.png') }}" alt="Prediksi vs Aktual"><div class="cap">Prediksi vs aktual (level) â€” model juara mengikuti pergerakan dengan baik.</div></div>
-    <div class="figure"><img src="{{ url_for('static', filename='img/09_feature_importance.png') }}" alt="Feature Importance"><div class="cap">Feature importance â€” momentum & volatilitas jangka pendek paling informatif.</div></div>
+    <div class="figure"><img src="{{ url_for('static', filename='img/07_prediksi_vs_aktual.png') }}" alt="Prediksi vs Aktual"><div class="cap">Prediksi vs aktual (level) — model juara mengikuti pergerakan dengan baik.</div></div>
+    <div class="figure"><img src="{{ url_for('static', filename='img/09_feature_importance.png') }}" alt="Feature Importance"><div class="cap">Feature importance — momentum & volatilitas jangka pendek paling informatif.</div></div>
   </div>
 
-  <div class="note" style="margin-top:20px"><strong>Cara membaca:</strong> RÂ² tinggi untuk semua model bukan pembeda
+  <div class="note" style="margin-top:20px"><strong>Cara membaca:</strong> R² tinggi untuk semua model bukan pembeda
     (level direkonstruksi dari harga kemarin). Yang penting: model juara <strong>mengungguli baseline naif</strong>
-    pada RMSE/MAE (meski tipis) dan menebak <strong>arah ~65%</strong> â€” jauh di atas tebakan koin 50%.</div>
+    pada RMSE/MAE (meski tipis) dan menebak <strong>arah ~65%</strong> — jauh di atas tebakan koin 50%.</div>
 </div>
 {% endblock %}
 
@@ -47,7 +47,7 @@
   const css = getComputedStyle(document.documentElement);
   const v = n => css.getPropertyValue(n).trim();
   const muted = v('--muted'); const line = v('--line');
-  const accent = v('--accent'); const accent2 = v('--accent-2'); const up = v('--up');
+  const accent = v('--accent'); const accent2 = v('--accent-2');
 
   const names = tabel.map(r => r.Model);
   const rmse  = tabel.map(r => r['RMSE']);
@@ -56,7 +56,7 @@
   new Chart(document.getElementById('chartRmse'), {
     type: 'bar',
     data: { labels: names, datasets: [{ label: 'RMSE (Rupiah)', data: rmse, backgroundColor: colorsR }] },
-    options: { plugins: { legend: { display:false }, title: { display:true, text:'RMSE â€” termasuk Baseline (makin kecil makin baik)', color: muted, font:{family:'Space Grotesk'} } },
+    options: { plugins: { legend: { display:false }, title: { display:true, text:'RMSE — termasuk Baseline (makin kecil makin baik)', color: muted, font:{family:'Space Grotesk'} } },
       scales: { x: { ticks:{ color:muted, font:{size:9} }, grid:{display:false} }, y: { ticks:{ color:muted, font:{family:'Space Mono'} }, grid:{color:line} } } }
   });
 
@@ -64,8 +64,8 @@
   new Chart(document.getElementById('chartDir'), {
     type: 'bar',
     data: { labels: ml.map(r=>r.Model), datasets: [{ label:'Akurasi Arah (%)', data: ml.map(r=>r['Dir.Acc(%)']),
-      backgroundColor: ml.map(r=> r.Model===juara ? up : accent2) }] },
-    options: { plugins: { legend:{display:false}, title:{display:true, text:'Akurasi Arah (%) â€” garis 50% = acak', color:muted, font:{family:'Space Grotesk'} } },
+      backgroundColor: ml.map(r=> r.Model===juara ? accent : accent2) }] },
+    options: { plugins: { legend:{display:false}, title:{display:true, text:'Akurasi Arah (%) — garis 50% = acak', color:muted, font:{family:'Space Grotesk'} } },
       scales: { x: { ticks:{ color:muted, font:{size:9} }, grid:{display:false} },
         y: { min:45, ticks:{ color:muted, font:{family:'Space Mono'} }, grid:{color:line} } } }
   });

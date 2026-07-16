@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container section">
   <div class="section-title"><span class="num-tag">03</span><h1>Forecast 30 Hari ke Depan</h1></div>
-  <p class="lead-muted">Proyeksi iteratif dengan model {{ model }} Â· confidence band melebar mengikuti horizon (ÏƒÂ·âˆšh).</p>
+  <p class="lead-muted">Proyeksi iteratif dengan model {{ model }} · confidence band melebar mengikuti horizon (σ·√h).</p>
 
   <div class="card" style="margin:20px 0">
     <canvas id="chartForecast" height="110"></canvas>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="note" style="margin-top:20px"><strong>Asumsi:</strong> perubahan indikator makro ke depan dianggap nol
-    (makro relatif stabil). Band yang melebar mencerminkan ketidakpastian yang bertambah seiring horizon â€”
+    (makro relatif stabil). Band yang melebar mencerminkan ketidakpastian yang bertambah seiring horizon —
     representasi risiko yang jujur. Forecast = alat bantu perencanaan, bukan kepastian.</div>
 </div>
 {% endblock %}
