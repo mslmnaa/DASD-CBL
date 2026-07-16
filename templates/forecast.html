@@ -1,9 +1,9 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Forecast 30 Hari{% endblock %}
 {% block content %}
 <div class="container section">
   <div class="section-title"><span class="num-tag">03</span><h1>Forecast 30 Hari ke Depan</h1></div>
-  <p class="lead-muted">Proyeksi iteratif dengan model {{ model }} · confidence band melebar mengikuti horizon (σ·√h).</p>
+  <p class="lead-muted">Proyeksi iteratif dengan model {{ model }} Â· confidence band melebar mengikuti horizon (ÏƒÂ·âˆšh).</p>
 
   <div class="card" style="margin:20px 0">
     <canvas id="chartForecast" height="110"></canvas>
@@ -21,7 +21,7 @@
   </div>
 
   <div class="note" style="margin-top:20px"><strong>Asumsi:</strong> perubahan indikator makro ke depan dianggap nol
-    (makro relatif stabil). Band yang melebar mencerminkan ketidakpastian yang bertambah seiring horizon —
+    (makro relatif stabil). Band yang melebar mencerminkan ketidakpastian yang bertambah seiring horizon â€”
     representasi risiko yang jujur. Forecast = alat bantu perencanaan, bukan kepastian.</div>
 </div>
 {% endblock %}
@@ -43,15 +43,18 @@
   fcLine[nH-1] = hist[nH-1].nilai; bawah[nH-1] = hist[nH-1].nilai; atas[nH-1] = hist[nH-1].nilai;
 
   const css = getComputedStyle(document.documentElement);
-  const muted = css.getPropertyValue('--muted'); const line = css.getPropertyValue('--line');
+  const v = n => css.getPropertyValue(n).trim();
+  const muted = v('--muted'); const line = v('--line');
+  const accent = v('--accent'); const bandLine = v('--accent-line'); const bandFill = v('--accent-soft');
+  const histColor = v('--text');
 
   new Chart(document.getElementById('chartForecast'), {
     type: 'line',
     data: { labels, datasets: [
-      { label: 'Batas Atas', data: atas, borderColor: 'rgba(94,234,212,.25)', backgroundColor: 'rgba(94,234,212,.12)', fill: '+1', pointRadius: 0, borderWidth: 1 },
-      { label: 'Batas Bawah', data: bawah, borderColor: 'rgba(94,234,212,.25)', fill: false, pointRadius: 0, borderWidth: 1 },
-      { label: 'Historis', data: histLine, borderColor: '#e8edf7', backgroundColor: '#e8edf7', pointRadius: 0, borderWidth: 2, tension: .15 },
-      { label: 'Forecast', data: fcLine, borderColor: '#fbbf24', backgroundColor: '#fbbf24', pointRadius: 2, borderWidth: 2, tension: .15 },
+      { label: 'Batas Atas', data: atas, borderColor: bandLine, backgroundColor: bandFill, fill: '+1', pointRadius: 0, borderWidth: 1 },
+      { label: 'Batas Bawah', data: bawah, borderColor: bandLine, fill: false, pointRadius: 0, borderWidth: 1 },
+      { label: 'Historis', data: histLine, borderColor: histColor, backgroundColor: histColor, pointRadius: 0, borderWidth: 2, tension: .15 },
+      { label: 'Forecast', data: fcLine, borderColor: accent, backgroundColor: accent, pointRadius: 2, borderWidth: 2, tension: .15 },
     ]},
     options: {
       responsive: true, interaction: { mode: 'index', intersect: false },
@@ -64,3 +67,4 @@
   });
 </script>
 {% endblock %}
+
